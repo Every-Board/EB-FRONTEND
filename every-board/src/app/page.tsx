@@ -6,6 +6,8 @@ import Image from 'next/image'
 import { FcGoogle } from 'react-icons/fc'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { AiOutlineEyeInvisible } from 'react-icons/ai'
+import { AiOutlineEye } from 'react-icons/ai'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -55,6 +57,10 @@ const Input = styled.input`
   border-style: solid;
   border-color: #d0d5dd;
 `
+
+const PWButton = styled.div``
+
+const PWIcon = styled.div``
 
 const ErrorText = styled.span`
   margin: 5px;
@@ -136,6 +142,20 @@ export default function Login() {
     console.log(data)
   }
 
+  //비밀번호toggle
+  const [showPassword, setShowPassword] = useState<boolean>(false)
+
+  const togglePassword = () => {
+    setShowPassword(!showPassword)
+  }
+
+  //비밀번호 icon누르면 비밀번호가 보이도록
+  const PasswrodIcon = showPassword ? (
+    <AiOutlineEyeInvisible onClick={togglePassword} />
+  ) : (
+    <AiOutlineEye onClick={togglePassword} />
+  )
+
   //checkbox
   const [ischecked, setIsChecked] = useState<boolean>(false)
 
@@ -165,13 +185,12 @@ export default function Login() {
                   },
                 })}
               />
-
               <ErrorText>{errors.email && errors.email.message}</ErrorText>
             </FormWrap>
             <FormWrap>
               <Label>Password</Label>
               <Input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="●●●●●●●●"
                 {...register('password', {
                   required: '비밀번호를 입력해주세요.',
@@ -181,6 +200,9 @@ export default function Login() {
                   },
                 })}
               />
+              <PWButton>
+                <PWIcon>{PasswrodIcon}</PWIcon>
+              </PWButton>
               <ErrorText>
                 {errors.password && errors.password.message}
               </ErrorText>
@@ -223,7 +245,7 @@ export default function Login() {
           </Form>
         </Left>
         <Right>
-          <Image src={'/frame.png'} width={400} height={500} alt="frame" />
+          <Image src={'/frame.png'} width={450} height={600} alt="frame" />
         </Right>
       </Wrapper>
     </>

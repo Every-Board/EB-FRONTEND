@@ -112,6 +112,7 @@ const Right = styled.div``
 type SigninValues = {
   errors: string
   email: string
+  emailconfirm: string
   nickname: string
   password: string
   passwordconfirm: string
@@ -159,24 +160,31 @@ export default function Login() {
             </FormWrap>
             <FormWrap>
               <Label>Email 인증번호 확인</Label>
-              <Input placeholder="ex) 6AAR32f" />
+              <Input
+                placeholder="ex) 6AAR32f"
+                {...register('emailconfirm', {
+                  required: '이메일 인증번호를 입력해주세요.',
+                })}
+              />
+              <ErrorText>
+                {errors.emailconfirm && errors.emailconfirm.message}
+              </ErrorText>
             </FormWrap>
             <FormWrap>
               <Label>Nick Name</Label>
               <Input
-                placeholder="이름"
+                placeholder="nickname"
                 {...register('nickname', {
-                  required: '이름은 필수사항입니다.',
+                  required: '닉네임을 입력해주세요. ',
                   pattern: {
-                    value: /^[가-힣]+$/,
-                    message: '이름 형식에 맞지 않습니다.',
-                  },
-                  minLength: {
-                    value: 2,
-                    message: '2글짜 이상 쓰셔야 합니다.',
+                    value: /^[가-힣a-zA-Z0-9]{2,16}$/,
+                    message: '공백을 제외한 영어, 숫자, 한글 2자 ~ 12자입니다.',
                   },
                 })}
               />
+              <ErrorText>
+                {errors.nickname && errors.nickname.message}
+              </ErrorText>
             </FormWrap>
             <FormWrap>
               <Label>Password</Label>
@@ -239,7 +247,7 @@ export default function Login() {
           </Form>
         </Left>
         <Right>
-          <Image src={'/frame.png'} width={400} height={500} alt="frame" />
+          <Image src={'/frame.png'} width={450} height={600} alt="frame" />
         </Right>
       </Wrapper>
     </>
