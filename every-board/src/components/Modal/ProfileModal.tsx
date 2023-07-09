@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import Avatar from "../Avatar";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAvatar } from "../../context/AvatarContext";
 import axios from "axios";
 
@@ -94,7 +94,7 @@ export default function ProfileModal({ onClose, children }: Props) {
       const maxFileSize = 2 * 1024 * 1024;
       if (file.size > maxFileSize) {
         alert(
-          "파일 크기가 2MB를 초고하였습니다. 더 작은 사이즈의 이미지를 선택해주세요.",
+          "파일 크기가 2MB를 초과하였습니다. 더 작은 사이즈의 이미지를 선택해주세요.",
         );
         return;
       }
@@ -104,8 +104,11 @@ export default function ProfileModal({ onClose, children }: Props) {
       reader.onload = async e => {
         const result = e.target?.result as string;
         setImage(result);
-        setAvatarImage(result); // Update the global avatarImage
+        setAvatarImage(result);
         await uploadImage();
+
+        //업로드가 된 후 sessionStorage에 이미지 저장
+        sessionStorage.setItem("uploadImage", result);
       };
       reader.readAsDataURL(file);
     }
@@ -114,10 +117,24 @@ export default function ProfileModal({ onClose, children }: Props) {
   const DeleteImageFile = () => {
     setImage(null);
     setAvatarImage(null);
+    sessionStorage.removeItem("uploadImage");
   };
 
   const userId = sessionStorage.getItem("userId");
   const Access_Token = sessionStorage.getItem("Authorization");
+
+  const loadSavedImage = () => {
+    const savedImage = sessionStorage.getItem("uploadImage");
+
+    if (savedImage) {
+      setImage(savedImage);
+      setAvatarImage(savedImage);
+    }
+  };
+
+  useEffect(() => {
+    loadSavedImage();
+  }, []);
 
   const uploadImage = async () => {
     if (
@@ -153,8 +170,6 @@ export default function ProfileModal({ onClose, children }: Props) {
           formData,
           {
             headers: {
-              //하렴님 여기 부분은 없어도 500error가 생기지 않습니다!
-              // "Content-Type": "multipart/form-data",
               Authorization: Access_Token,
             },
           },

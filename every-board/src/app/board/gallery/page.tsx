@@ -2,8 +2,6 @@
 
 import axios from "axios";
 import React from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
