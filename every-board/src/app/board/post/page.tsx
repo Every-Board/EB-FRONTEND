@@ -288,6 +288,9 @@ const page = () => {
       if (response.status === 201) {
         //contentId는 이와같이 가져와야함
         const contentId = response.data.data.contentId;
+
+        //contentId sessionStorage에 저장 => 댓글에 필요
+        if (contentId) sessionStorage.setItem("contentId", contentId);
         console.log(contentId);
         router.push(`/board/detail?contentId=${contentId}`);
       }

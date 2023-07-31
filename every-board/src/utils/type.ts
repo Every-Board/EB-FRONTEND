@@ -1,6 +1,7 @@
 //게시글 단건조회 타입
 export interface ContentDetail {
   category: string;
+  comments: IComment[];
   content: string;
   contentHeartCount: number;
   contentId: number;
@@ -49,6 +50,7 @@ export interface contentResponseDto {
 
 export interface SearchKeyword {
   contentId: number;
+  comments: IComment[];
   userId: number | null | undefined;
   viewCount: number;
   contentHeartCount: number;
@@ -73,4 +75,16 @@ export interface PostLike {
   contentId: number;
   userId: number;
   heartType: string;
+}
+
+//Comment
+export interface IComment {
+  comment: string;
+  commentId: number;
+  contentId: number;
+  createdAt: string;
+  modifiedAt: string;
+  nickName: string;
+  title: string;
+  userId: number;
 }

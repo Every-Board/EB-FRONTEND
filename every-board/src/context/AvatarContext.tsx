@@ -21,7 +21,8 @@ type AvatarProviderProps = {
 };
 
 export const AvatarProvider: React.FC<AvatarProviderProps> = ({ children }) => {
-  const [avatarImage, setAvatarImage] = useState<string | null>(null);
+  const initialImage = sessionStorage.getItem("AvatarImage");
+  const [avatarImage, setAvatarImage] = useState<string | null>(initialImage);
 
   return (
     <AvatarContext.Provider value={{ avatarImage, setAvatarImage }}>
