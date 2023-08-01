@@ -149,44 +149,41 @@ type IFetch = {
   createdAt: string;
   modifiedAt: string;
   nickName: string;
-  title: string;
+  title: number;
   userId: number;
 };
 
-export default function CommentInput() {
+type CommentProps = {
+  contentId: number | undefined;
+};
+
+//contendId를 props로 전달받음
+export default function CommentInput({ contentId }: CommentProps) {
   const [newComment, setNewComment] = useState("");
 
-  //댓글 toggle
-  const [toggle, setToggle] = useState(false);
+  //댓글 toggle => 나중에 추가
+  // const [toggle, setToggle] = useState(false);
 
-  const handleClickToggle = () => {
-    setToggle(!toggle);
-  };
+  // const handleClickToggle = () => {
+  //   setToggle(!toggle);
+  // };
 
   //댓글 출력
   const [showComment, setShowComment] = useState<IComment[]>([]);
 
-  //댓글 서버에서 가져오기
-  const [fetch, setFetch] = useState<IFetch>();
+  //서버에서  가져오는 댓글state
+  const [fetch, setFetch] = useState<IFetch[]>([]);
 
-  //댓글 등록해서 보이기
+  //댓글 등록
   const fetchComment = async () => {
     const ACCESS_TOKEN = sessionStorage.getItem("Authorization");
-    const contentId = sessionStorage.getItem("contentId");
-
-    let contentIdNumber = 0;
-
-    //sessionStorage에 저장되어있는 contentId는 string이므로 숫자형으로 변환해야함!
-    if (contentId !== null) {
-      contentIdNumber = parseInt(contentId);
-    }
 
     try {
       const response = await axios.post(
         "https://every-board.shop/comments",
         {
-          contentId: contentIdNumber,
           comment: newComment,
+          contentId: contentId,
         },
         {
           headers: {
@@ -194,41 +191,31 @@ export default function CommentInput() {
           },
         },
       );
+      console.log(response.data);
 
-      const commentId = response.data.commentId;
-      getComments(commentId);
       setShowComment([...showComment, response.data]);
-      console.log(response);
     } catch (err: any) {
       console.log(err);
     }
   };
 
-  // //댓글 서버에서 조회
-  const getComments = async (commentId: number | null = null) => {
+  // 댓글 서버에서 조회
+  const getComments = async () => {
     try {
-      console.log(commentId);
-      const ACCESS_TOKEN = sessionStorage.getItem("Authorization");
-
       const response = await axios.get(
-        `https://every-board.shop/comments/${commentId}`,
-        {
-          headers: {
-            Authorization: ACCESS_TOKEN,
-          },
-        },
+        `https://every-board.shop/comments/contents/${contentId}`,
       );
+
       setFetch(response.data);
+      console.log(response);
     } catch (err) {
       console.log(err);
     }
   };
 
-  // useEffect(() => {
-  //   if (showComment.length === 0) {
-  //     getComments();
-  //   }
-  // }, [showComment.length]);
+  useEffect(() => {
+    getComments();
+  }, []);
 
   const handleClick = async () => {
     await fetchComment();
@@ -237,27 +224,34 @@ export default function CommentInput() {
 
   return (
     <>
-      {fetch?.comment}
-      <CommentWrapper onClick={handleClickToggle}>
+      <CommentWrapper>
         <CommentIcon>
           <BiCommentDetail />
         </CommentIcon>
-
         <CommentTitle>댓글</CommentTitle>
       </CommentWrapper>
-      {/* {toggle && (
-        <GetCommentsWrap>
-          {showComment.map((item, index) => (
-            <GetComment key={index}>
-              <GetCommentTop>
-                <GetNickname>{item.nickName}</GetNickname>
-                <GetDate>{item.createdAt}</GetDate>
-              </GetCommentTop>
-              <GetCommentBottom>{item.comment}</GetCommentBottom>
-            </GetComment>
-          ))}
-        </GetCommentsWrap>
-      )} */}
+      <GetCommentsWrap>
+        {fetch.map((item, index) => (
+          <GetComment key={index}>
+            <GetCommentTop>
+              <GetNickname>{item.nickName}</GetNickname>
+              <GetDate>{item.createdAt}</GetDate>
+            </GetCommentTop>
+            <GetCommentBottom>{item.comment}</GetCommentBottom>
+          </GetComment>
+        ))}
+      </GetCommentsWrap>
+      <GetCommentsWrap>
+        {showComment.map((item, index) => (
+          <GetComment key={index}>
+            <GetCommentTop>
+              <GetNickname>{item.nickName}</GetNickname>
+              <GetDate>{item.createdAt}</GetDate>
+            </GetCommentTop>
+            <GetCommentBottom>{item.comment}</GetCommentBottom>
+          </GetComment>
+        ))}
+      </GetCommentsWrap>
       <CommentInputWrap>
         <Avatar size="verysmall" />
         <Input>
@@ -269,7 +263,6 @@ export default function CommentInput() {
             }}
           />
         </Input>
-
         <Submit onClick={handleClick}>
           <Image src={"/send.svg"} width={15} height={15} alt="보내기" />
         </Submit>

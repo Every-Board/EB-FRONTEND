@@ -108,7 +108,8 @@ const PostCard = (props: Props) => {
         userId={data?.userId}
         contentId={data?.contentId}
       />
-      <CommentInput />
+      {/* CommentInput에 contentId전달 */}
+      <CommentInput contentId={data?.contentId} />
     </Article>
   );
 };

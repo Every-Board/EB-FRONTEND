@@ -291,7 +291,7 @@ const page = () => {
 
         //contentId sessionStorage에 저장 => 댓글에 필요
         if (contentId) sessionStorage.setItem("contentId", contentId);
-        console.log(contentId);
+
         router.push(`/board/detail?contentId=${contentId}`);
       }
     } catch (err) {
