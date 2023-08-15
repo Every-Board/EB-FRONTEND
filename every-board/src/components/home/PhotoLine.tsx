@@ -1,11 +1,9 @@
 import styled from "styled-components";
 import ButtonLayout from "@/components/ButtonLayout";
 import { useRouter } from "next/navigation";
-import { useGetDetailContent, useGetImg } from "@/utils/api";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { BiCommentDetail } from "react-icons/bi";
-import { ContentDetail } from "@/utils/type";
+import axios from "axios";
 
 const Section = styled.section`
   display: flex;
@@ -34,6 +32,7 @@ const TitleWrap = styled.div`
 
 const PhotoWrap = styled.div`
   display: flex;
+  flex-wrap: wrap;
   border-radius: 10px;
   width: 330px;
   overflow-x: hidden;
@@ -90,11 +89,48 @@ const TextWrap = styled.div`
   }
 `;
 
+type ImgData = {
+  contentImageId: number;
+  contentId: number;
+  contentImgUrl: string;
+};
+
+type photoData = {
+  contentId: number;
+  userId: number;
+  viewCount: number;
+  contentHeartCount: number;
+  title: string;
+  content: string;
+  contentImages: ImgData[];
+  category: string;
+  createdAt: string;
+  modifiedAt: string;
+};
+
 const PhotoLine = () => {
   const router = useRouter();
-  const [contentId, setContentId] = useState<number>();
-  const { data, isLoading, isError } = useGetImg();
-  const { data: detail } = useGetDetailContent(contentId);
+
+  const [photodata, setPhotoData] = useState<photoData[]>([]);
+
+  // 최신순으로 생성된 데이터 4개를 가져오기
+  const sortedPhotoData = photodata
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+  useEffect(() => {
+    axios
+      .get("https://every-board.shop/contents?size=100")
+      .then(function (res) {
+        setPhotoData(res.data.contentResponseDto);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <Section>
@@ -112,33 +148,25 @@ const PhotoLine = () => {
         ></ButtonLayout>
       </TitleWrap>
       <PhotoWrap>
-        {data?.map(el => {
-          return (
-            <ContentWrap
-              onClick={() => {
-                router.push(`board/detail?contentId=${el.contentId}`);
-              }}
-              // onLoad={() => setContentId(el.contentId)}
-              style={{ cursor: "pointer" }}
-            >
-              <Image
-                key={el.contentImages[0]?.contentImageId}
-                src={`https://backendcontentimage.s3.ap-northeast-2.amazonaws.com/${el.contentImages[0]?.contentImgUrl}`}
-                width={500}
-                height={500}
-                alt="이미지"
-              />
-              <img></img>
-              <TextWrap>
-                <h5>제목입니당</h5>
-                <span>
-                  <BiCommentDetail size={15} />
-                  <span>21</span>
-                </span>
-              </TextWrap>
-            </ContentWrap>
-          );
-        })}
+        {/* 최신순으로 생성된 데이터 4개를 가져오기 */}
+        {sortedPhotoData.slice(0, 4).map((el, index) => (
+          <div
+            key={index}
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              router.push(`board/detail?contentId=${el.contentId}`);
+            }}
+          >
+            <Image
+              key={el.contentImages[0]?.contentImageId}
+              src={`https://backendcontentimage.s3.ap-northeast-2.amazonaws.com/${el.contentImages[0]?.contentImgUrl}`}
+              width={500}
+              height={500}
+              alt="이미지"
+            />
+            <TextWrap>{el.title}</TextWrap>
+          </div>
+        ))}
       </PhotoWrap>
     </Section>
   );
